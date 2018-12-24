@@ -19,6 +19,17 @@
 
 %% returns a list of
 -spec compile(file:filename_all()) -> {ok, query_list()} | any().
+
+compile({directory,Path,Ext}) when is_binary(Path) -> 
+    compile({directory,binary_to_list(Path),Ext});
+compile({directory,Path,Ext}) when is_binary(Ext) -> 
+    compile({directory,Path,binary_to_list(Ext)});
+compile({directory,Path,Ext}) ->
+    Ext1 = "."++Ext,
+    {ok,List} = file:list_dir(Path),
+    Files = [filename:join(Path, Name) || Name <- List,filename:extension(Name) =:= Ext1],
+    [compile(File) || File <- Files];
+
 compile(File) ->
     eql_parse:file(File).
 
