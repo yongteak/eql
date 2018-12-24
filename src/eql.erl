@@ -28,7 +28,12 @@ compile({directory,Path,Ext}) ->
     Ext1 = "."++Ext,
     {ok,List} = file:list_dir(Path),
     Files = [filename:join(Path, Name) || Name <- List,filename:extension(Name) =:= Ext1],
-    [compile(File) || File <- Files];
+    {ok,lists:foldl(fun(File,A)->
+        io:format("~p~n",[File]),
+        {ok,Res} = compile(File),
+        A ++ Res
+    end,[],Files)};
+    % [compile(File) || File <- Files];
 
 compile(File) ->
     eql_parse:file(File).
